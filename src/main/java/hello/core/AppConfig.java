@@ -8,17 +8,21 @@ import hello.core.member.MemberServiceImpl;
 import hello.core.member.MemoryMemberRepository;
 import hello.core.order.OrderService;
 import hello.core.order.OrderServiceLmpl;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
+@Configuration
 public class AppConfig {
     //각각의 클래스에서 만든 생성자를 여기서 매서드를 만드는데 사용함
 
 
     //리팩터링함 (memberRepository 로 꺼내서 더 가독성 좋게), 리팩터링을 통해 한눈에 다이어그램처럼 들어올 수 있게
+    @Bean
     public MemberService memberService(){
         return new MemberServiceImpl(memberRepository());
     }
-
-    private MemoryMemberRepository memberRepository() {
+    @Bean
+    public MemoryMemberRepository memberRepository() {
         return new MemoryMemberRepository();
     }
     //appConfig 객체는 memoryMemberRepository 객체를 생성하고 그 참조값을 memberServiceImpl 을
@@ -28,10 +32,12 @@ public class AppConfig {
 
 
     //리팩터링함 (discountPolicy 로 꺼내서 더 가독성 좋게), 리팩터링을 통해 한눈에 다이어그램처럼 들어올 수 있게
+    @Bean
     public OrderService orderService(){
         return new OrderServiceLmpl(memberRepository(), discountPolicy());
     }
 
+    @Bean
     public DiscountPolicy discountPolicy(){
         return new RateDiscountPolicy();
         //return new FixDiscountPolicy();

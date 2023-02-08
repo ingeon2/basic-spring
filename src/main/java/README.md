@@ -81,3 +81,53 @@ DIP - 프로그래머는 “추상화에 의존해야지, 구체화에 의존하
 (AppConfig 생성)
 OCP - 소프트웨어 요소는 확장에는 열려 있으나 변경에는 닫혀 있어야 한다
 (소프트웨어 요소를 새롭게 확장해도 config만 변경하고, 사용 영역의 변경은 닫혀 있다.)
+
+IoC,제어의 역전 (Inversion of Control)
+AppConfig가 등장한 이후에 구현 객체는 자신의 로직을 실행하는 역할만 담당한다. 프로그램의
+제어 흐름은 이제 AppConfig가 가져간다. 예를 들어서 OrderServiceImpl 은 필요한 인터페이스들을
+호출하지만 어떤 구현 객체들이 실행될지 모른다.
+이렇듯 프로그램의 제어 흐름을 직접 제어하는 것이 아니라 외부에서 관리하는 것을 제어의 역전(IoC)이라
+한다.
+
+정적인 클래스 의존관계
+import 코드만 보고 의존관계를 쉽게 판단할 수 있다. 정적인 의존관계는 애플리케이션을 실행하지 않아도 분석가능 
+(인터페이스와 하위클래스)
+
+동적인 객체 인스턴스 의존 관계
+애플리케이션 실행 시점에 실제 생성된 객체 인스턴스의 참조가 연결된 의존 관계다
+(Fix를 사용할지 Rate를 사용할지)
+
+의존관계 주입을 사용하면 정적인 클래스 의존관계를 변경하지 않고, 동적인 객체 인스턴스 의존관계를
+쉽게 변경할 수 있다.
+
+IoC 컨테이너, DI 컨테이너
+AppConfig 처럼 객체를 생성하고 관리하면서 의존관계를 연결해 주는 것을
+IoC 컨테이너 또는 DI 컨테이너라 한다. (나중엔 Spring 이 할 역할)
+
+
+3번의 변경 후
+이젠 Spring을 사용! (only java → Spring)
+by @Configuration,@Bean in AppConfig
+ApplicationContext applicationContext = new AnnotationConfigApplicationContext(AppConfig.class);  in MemberApp
+AppConfig 환경설정 정보가지고 @Bean 붙은것들 컨테이너에서 생성해서 관리해줌.
+MemberService memberService = applicationContext.getBean("memberService", MemberService.class);  in MemberApp
+"memberService" 이거는 이 이름의 매서드를 찾을거라는 뜻. 그러면 주석 없이  OrderApp 바꿔보기.
+
+쉽게말해서 applicationContext 에 AppConfig 할당.
+memberService 에 applicationContext를 사용한 매서드(getBean)로 MemberService 할당.
+
+스프링 컨테이너
+ApplicationContext 를 스프링 컨테이너라 한다.
+기존에는 개발자가 AppConfig 를 사용해서 직접 객체를 생성하고 DI를 했지만, 이제부터는 스프링 컨테이너를 통해서 사용한다.
+스프링 컨테이너는 @Configuration 이 붙은 AppConfig 를 설정(구성) 정보로 사용한다. 
+여기서 @Bean 이라 적힌 메서드를 모두 호출해서 반환된 객체를 스프링 컨테이너에 등록한다. 
+이렇게 스프링 컨테이너에 등록된 객체를 스프링 빈이라 한다.
+스프링 빈은 @Bean 이 붙은 메서드의 명을 스프링 빈의 이름으로 사용한다. 
+( memberService , orderService ) 매서드 in AppConfig
+이전에는 개발자가 필요한 객체를 AppConfig 를 사용해서 직접 조회했지만, 이제부터는 스프링 컨테이너를 통해서 필요한 스프링 빈(객체)를 찾아야 한다. 
+스프링 빈은 applicationContext.getBean() 메서드를 사용해서 찾을 수 있다.
+기존에는 개발자가 직접 자바코드로 모든 것을 했다면 이제부터는 스프링 컨테이너에 객체를 스프링 빈으로 등록하고, 
+스프링 컨테이너에서 스프링 빈을 찾아서 사용하도록 변경되었다.
+
+
+코드가 약간 더 복잡해진 것 같은데, 스프링 컨테이너를 사용하면 어떤 장점이 있을까?
