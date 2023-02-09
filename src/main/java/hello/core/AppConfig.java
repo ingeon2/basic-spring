@@ -1,13 +1,12 @@
 package hello.core;
 
 import hello.core.discount.DiscountPolicy;
-import hello.core.discount.FixDiscountPolicy;
 import hello.core.discount.RateDiscountPolicy;
 import hello.core.member.MemberService;
 import hello.core.member.MemberServiceImpl;
 import hello.core.member.MemoryMemberRepository;
 import hello.core.order.OrderService;
-import hello.core.order.OrderServiceLmpl;
+import hello.core.order.OrderServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -34,7 +33,7 @@ public class AppConfig {
     //리팩터링함 (discountPolicy 로 꺼내서 더 가독성 좋게), 리팩터링을 통해 한눈에 다이어그램처럼 들어올 수 있게
     @Bean
     public OrderService orderService(){
-        return new OrderServiceLmpl(memberRepository(), discountPolicy());
+        return new OrderServiceImpl(memberRepository(), discountPolicy());
     }
 
     @Bean

@@ -20,11 +20,11 @@ private final DiscountPolicy discountPolicy = new RateDiscountPolicy();
 에서 무엇을 사용할지에 따라 주석처리해주어야함.  
 즉, 위의 코드는  
 ★OCP, DIP 같은 객체지향 설계 원칙을 위배한것.   
-1. (위에서 DIP는 클래스 의존관계를 분석해 보자. 추상(인터페이스) 뿐만 아니라 구체(구현) 클래스에도 의존.)  
+(위에서 DIP는 클래스 의존관계를 분석해 보자. 추상(인터페이스) 뿐만 아니라 구체(구현) 클래스에도 의존.)  
 추상(인터페이스) 의존: DiscountPolicy  
 구체(구현) 클래스: FixDiscountPolicy , RateDiscountPolicy  
 (discountPolicy 객체는 자기 역할만 하면 되는데 하위 클래스를 설정해주는 역할까지 하고 있다)  
-2. (위에서 OCP는 지금 코드는 기능을 확장해서 변경하면, 클라이언트 코드에 영향을 준다! 따라서 OCP를 위반.)  
+(위에서 OCP는 지금 코드는 기능을 확장해서 변경하면, 클라이언트 코드에 영향을 준다! 따라서 OCP를 위반.)  
 // 어려우면 pdf 다어이그램 볼것  
 //  
 그러면 위의 문제를 어떻게 해결할까나..?  
@@ -140,4 +140,43 @@ ApplicationContextInfoTest 클래스 추가로 컨테이너의 Bean 확인.
 예를 들어, (AppConfig 클래스에서 memberService와 orderService는 memberRepository를 의존)  
 단순히 자바 코드를 호출하는 것 같지만, 차이가 있다. 이 차이는 뒤에 싱글톤 컨테이너에서 설명.  
 
-beanfind 패키지 안에서 컨테이너로 올려놓은 빈을 찾는 각각의 방법을 가진 클래스들을 만들었다.  
+Test 패키지 안의 beanfind 패키지 안에서 컨테이너로 올려놓은 빈을 찾는 각각의 방법을 가진 클래스들을 만들었다.
+Test에서도 마찬가지로, 구체화에 의존하는것은 좋지 않은 방식이다.  
+(DiscountPolicy rateDiscountPolicy O)  
+(RateDiscountPolicy rateDiscountPolicy X)  
+
+BeanFactory와 ApplicationContext  
+ApplicationContext는 BeanFactory의 기능을 상속받는다.  
+ApplicationContext는 빈 관리기능 + 편리한 부가 기능을 제공한다.  
+BeanFactory를 직접 사용할 일은 거의 없다. 부가기능이 포함된 ApplicationContext를 사용한다.  
+BeanFactory나 ApplicationContext를 스프링 컨테이너라 한다.  
+
+
+
+ApplicationContext가 스프링 컨테이너이고,  
+지금까지는 AppConfig에서 의존관계 설정 후 스프링 컨테이너를 AnnotationConfig 통해 사용했다.(AppConfig.class)      
+하지만 XML을 통해 컨테이너를 사용하는 방식도 가능하기에,  또한 추가했다.(XmlAppContext.class, appConfig.xml)  
+xml 기반의 appConfig.xml 스프링 설정 정보와 자바 코드로 된 AppConfig.java 설정 정보를 비교해보면 거의 비슷    
+  
+  
+지금까지 정리
+기본 로직 만들고(순수 자바)  
+AppConfig를 만들어 의존관계 설정했다.(리팩터링 포함, 순수 자바)    
+이후 AnnotationConfig를 통해 스프링과 연결했다.  
+이후 빈을 어떻게 호출하는지에 대해 beanfind 패키지에서 알아보았다.  
+이후 스프링 컨테이너를 사용하는 여러가지 방식(AnnotationConfig, XmlAppContext)을 알아보았다  
+
+
+스프링은 어떻게 이런 다양한 설정 형식(xml, annotation)을 지원하는 것일까?    
+그 중심에는 BeanDefinition 이라는 추상화가 있다.(pdf 17페이지 그림)  
+스프링 컨테이너는 자바 코드인지, XML인지 몰라도 된다. 오직 BeanDefinition만 알면 된다.  
+새로운 형식의 설정 정보가 추가되면, XxxBeanDefinitionReader를 만들어서 BeanDefinition 을 생성하면 된다.  
+(Xxx는 Annotated일 수도 있고 Xml일 수도 있다.)  
+  
+즉, BeanDefinition에 대해서는 너무 깊이있게 이해하기 보다는, 스프링이 다양한 형태의 설정 정보를  
+BeanDefinition으로 추상화해서 사용하는 것 정도만 이해하면 된다.  
+  
+  
+  
+  
+
