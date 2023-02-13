@@ -18,10 +18,12 @@ public class AppConfig {
     //리팩터링함 (memberRepository 로 꺼내서 더 가독성 좋게), 리팩터링을 통해 한눈에 다이어그램처럼 들어올 수 있게
     @Bean
     public MemberService memberService(){
+        System.out.println("(singleton 확인) call Appconfig.memberService");
         return new MemberServiceImpl(memberRepository());
     }
     @Bean
     public MemoryMemberRepository memberRepository() {
+        System.out.println("(singleton 확인) call Appconfig.memberRepository");
         return new MemoryMemberRepository();
     }
     //appConfig 객체는 memoryMemberRepository 객체를 생성하고 그 참조값을 memberServiceImpl 을
@@ -33,6 +35,7 @@ public class AppConfig {
     //리팩터링함 (discountPolicy 로 꺼내서 더 가독성 좋게), 리팩터링을 통해 한눈에 다이어그램처럼 들어올 수 있게
     @Bean
     public OrderService orderService(){
+        System.out.println("(singleton 확인) call Appconfig.orderService");
         return new OrderServiceImpl(memberRepository(), discountPolicy());
     }
 

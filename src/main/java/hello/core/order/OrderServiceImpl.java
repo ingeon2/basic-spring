@@ -38,4 +38,9 @@ public class OrderServiceImpl implements OrderService{
 
         return new Order(memberId, itemName, itemPrice, discountPrice);
     }
+
+    //싱글톤 테스트옹 in AppConfig, README
+    public MemberRepository getMemberRepository() {
+        return memberRepository;
+    }
 }

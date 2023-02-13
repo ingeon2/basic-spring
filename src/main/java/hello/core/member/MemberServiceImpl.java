@@ -24,6 +24,12 @@ public class MemberServiceImpl implements MemberService{
     public Member findMember(Long memberId) {
         return memberRepository.findById(memberId);
     }
+
+
+    //싱글톤 테스트옹 in AppConfig, README
+    public MemberRepository getMemberRepository() {
+        return memberRepository;
+    }
 }
 
 //설계 변경으로 MemberServiceImpl 은 MemoryMemberRepository 를 의존하지 않는다!

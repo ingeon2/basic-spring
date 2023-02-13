@@ -177,6 +177,32 @@ AppConfig를 만들어 의존관계 설정했다.(리팩터링 포함, 순수 �
 BeanDefinition으로 추상화해서 사용하는 것 정도만 이해하면 된다.  
   
   
+여기까지 BeanDefinition, 이후로는 싱글톤.  
+싱글톤  
+우리가 만들었던 스프링 없는 순수한 DI 컨테이너인 AppConfig는 요청을 할 때 마다 객체를 새로 생성한다.  
+고객 트래픽이 초당 100이 나오면 초당 100개 객체가 생성되고 소멸된다! 메모리 낭비가 심하다.  
+해결방안은 해당 객체가 딱 1개만 생성되고, 공유하도록 설계하면 된다.  
+★Spring 컨테이너는 그래서 객체를 하나만 생성해주고, 자바에서 순수하게 싱글톤을 사용할 때 생기는 문제점(ex 구체클래스 의존)들 또한 해결해준다!
   
+싱글톤 방식의 주의점은..?(무상태성을 유지해야한다!)  
+statefulService, statefulServiceTest 클래스에 문제점이 일어날 수 있는 상황을 만들어놓았다.  
+  
+끝나지 않은 싱글톤의 의문점 in AppConfig  
+AppConfig 클래스를 보면, memberService와 orderService 매서드를 실행하면 둘 다 new MemoryMemberRepository() 를 부른다.  
+어... 그럼 싱글톤이 깨지는거 아닌가..? 서로 다른 두 매서드에서 두개를 생성하는 셈이니..?  
+그냥 직접 봐보자!! 메모리 주소값이 같은지 (in ConfigurationSingletonTest)  
+Appconfig의 호출해주는 매서드의 println으로 singleton을 유지하는 것을 보았다 (ConfigurationSingletonTest에서 매서드 실행)  
+(예를 들어 memberRepository는 3번 호출되어야 한다. 하지만 1번만 호출되어 전부 같은 객체로 다른 매서드에서 사용된다.)  
+위처럼 되는 이유. 즉 완벽한 스프링이 singleton을 실행할 수 있는 이유는 ConfigurationSingletonTest 에서 configurationDeep 매서드를 통해 구현해놓았다!  
+(@Bean이 붙은 메서드마다 이미 스프링 빈이 존재하면 존재하는 빈을 반환하고, 스프링 빈이 없으면
+생성해서 스프링 빈으로 등록하고 반환하는 코드가 동적으로 만들어진다.)  
+이 덕분에 싱글톤 보장..!  
+
+@Bean만 사용해도 스프링 빈으로 등록되지만, 싱글톤을 보장하지 않는다.  
+memberRepository() 처럼 의존관계 주입이 필요해서 메서드를 직접 호출할 때 싱글톤을 보장하지 않는다.  
+크게 고민할 것이 없다. 스프링 설정 정보는 항상 @Configuration 을 사용하자.  
+  
+여기까지  
+코드 구현, config 클래스 생성, 스프링과 연결, bean찾기, beandef보기, 싱글톤 확인하기 까지 왔다.  
   
 
