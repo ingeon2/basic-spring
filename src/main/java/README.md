@@ -3,12 +3,7 @@ discount, member, order 패키지만들어서 인터페이스와 클래스까지
 여기서는 서로가 필요한 객체들을 생성자 주입이 아니라  
 전부 다 각각 MemberService memberService = new MemberServiceImpl(); 이런식으로 사용함  
 이 내용은 SOLID중에 D, 즉 추상화에 의존해야지, 구체화에 의존하면 안된다 의 원칙을 벗어남  
-(memberService는 인터페이스(추상화)고 MemberServiceImpl는 클래스(구체화)니까.)  
-//  
-하지만(좋은점)  
-package hello.core.order; 의 OrderServiceLmpl 클래스에서는  
-매서드 안에서 int discountPrice = discountPolicy.discount(member, itemPrice); 때문에  
-S의 원칙(단일책임) 은 잘 지켰음(int discountPrice)  
+(memberService는 인터페이스(추상화)고 MemberServiceImpl는 클래스(구체화)니까.)
 여기까지가 스프링 핵심 원리 이해1 - 예제 만들기 의 내용임. 오직 순수 자바를 사용.  
 //  
 //  
@@ -19,25 +14,11 @@ private final DiscountPolicy discountPolicy = new FixDiscountPolicy();
 private final DiscountPolicy discountPolicy = new RateDiscountPolicy();  
 에서 무엇을 사용할지에 따라 주석처리해주어야함.  
 즉, 위의 코드는  
-★OCP, DIP 같은 객체지향 설계 원칙을 위배한것.   
-(위에서 DIP는 클래스 의존관계를 분석해 보자. 추상(인터페이스) 뿐만 아니라 구체(구현) 클래스에도 의존.)  
-추상(인터페이스) 의존: DiscountPolicy  
-구체(구현) 클래스: FixDiscountPolicy , RateDiscountPolicy  
-(discountPolicy 객체는 자기 역할만 하면 되는데 하위 클래스를 설정해주는 역할까지 하고 있다)  
+★OCP, DIP 같은 객체지향 설계 원칙을 위배한것.  
 (위에서 OCP는 지금 코드는 기능을 확장해서 변경하면, 클라이언트 코드에 영향을 준다! 따라서 OCP를 위반.)  
 // 어려우면 pdf 다어이그램 볼것  
 //  
 그러면 위의 문제를 어떻게 해결할까나..?  
-간단하게 추상화에만 의존하는 코드를 짜보자  
-private final DiscountPolicy discountPolicy;  
-짰다.   
-근데 위에처럼만 코드를 짜면 DIP는 해결했지만,  Test 실행하면 NPE(null point exception 오류).  
-당연하다. 할인정책이 추상매서드인데 매서드 내용이 없으니(인터페이스니까) 실행할 수 없다.  
-//  
-또 이문제는 어떻게 해결할까나..?  
-클라이언트인 OrderServiceImpl 에 DiscountPolicy 의 구현 객체를 대신 생성하고 주입(DI)  
-//  
-//  
 위의 문제를 종합하면,  
 관심사의 분리  
 애플리케이션을 하나의 공연이라 생각해보자. 각각의 인터페이스를 배역(배우 역할)이라 생각하자. 그런데!  
@@ -203,6 +184,46 @@ memberRepository() 처럼 의존관계 주입이 필요해서 메서드를 직�
 크게 고민할 것이 없다. 스프링 설정 정보는 항상 @Configuration 을 사용하자.  
   
 여기까지  
-코드 구현, config 클래스 생성, 스프링과 연결, bean찾기, beandef보기, 싱글톤 확인하기 까지 왔다.  
+코드 구현, config 클래스 생성, 스프링과 연결(애너테이션 in Appconfig), bean찾기(test), beandef보기(test), 싱글톤 확인(test)하기 까지 왔다.  
+  
+  
+  
+AppConfig 클래스에서는 등록하고싶은 빈마다 @Bean 애너테이션을 붙였는데 귀찮지 않은가..?  
+그래서 스프링은 설정 정보가 없어도 자동으로 스프링 빈을 등록하는 컴포넌트 스캔이라는 기능을 제공한다.(AutoAppConfig클래스 보기!)  
+컴포넌트 스캔은 @Component 뿐만 아니라 다음과 내용도 추가로 대상에 포함한다.(에너테이션은 상속x, 스프링에서 자체적으로.)  
+@Component : 컴포넌트 스캔에서 사용  
+@Controlller : 스프링 MVC 컨트롤러에서 사용  
+@Service : 스프링 비즈니스 로직에서 사용  
+@Repository : 스프링 데이터 접근 계층에서 사용  
+@Configuration : 스프링 설정 정보에서 사용  
+  
+또 의존관계도 자동으로 주입하는 @Autowired 라는 기능도 제공한다.  
+이게 뭔 어려운소리지? 싶을 수 있는데, 차근차근 살펴보자.  
+이전에 AppConfig에서는 @Bean 으로 직접 설정 정보를 작성했고, 의존관계도 직접 명시했다.  
+이제는 이런 설정 정보 자체가 없기 때문에, 의존관계 주입도 이 클래스 안에서 해결해야 한다.  
+@Autowired 는 의존관계를 자동으로 주입해준다  
+  
+자세하게 MemberServiceImpl 클래스에서 말하자면,  
+@Autowired 가 붙은 생성자를 보고,  
+스프링에서 MemberServiceImpl 클래스를 빈으로 등록 할 때 생성자에 필요한 클래스인 MemberRepository 를 주입해준다.  
+  
+MemberRepository 인스턴스를 구체화한 클래스중 어떤 클래스를 주입해줄까..?   
+
+생성자에서 여러 의존관계도 한번에 주입받을 수 있다.(뭔소리지 싶으면 OrderServiceImpl 클래스의 생성자를 보도록 하자.)  
+또한, getBean 매서드 사용법도 달라진다. (매서드 명은 오직 AppConfig에만 존재하니까.)  
+어려우면 컴포넌트 스캔 pdf 5페이지.  
+  
+스캔 탐색위치는?  
+지정할 수 있음(AutoAppConfig 에서 주석 보기)  
+지정하지 않으면 @ComponentScan 이 붙은 설정 정보 클래스(AutoAppConfig)의 패키지가 시작 위치 (여기선 hello.core)  
+권장은 프로젝트 최상단에 AutoAppConfig 놔둬서 거기서부터 찾게 하기.  
+
+
+필터  
+includeFilters : 컴포넌트 스캔 대상을 추가로 지정한다.  
+excludeFilters : 컴포넌트 스캔에서 제외할 대상을 지정한다.  (Test 패키지의 scan 패키지의 filter 패키지에 구현.)  
+Test 패키지의 scan 패키지의 filter 패키지 꼭 한번 읽어보시길.  
+includeFilters 에 MyIncludeComponent 애노테이션을 추가해서 BeanA가 스프링 빈에 등록된다.  
+excludeFilters 에 MyExcludeComponent 애노테이션을 추가해서 BeanB는 스프링 빈에 등록되지 않는다.  
   
 

@@ -15,7 +15,7 @@ public class OrderApp {
         //OrderService orderService = appConfig.orderService(); 2번
 
         //MemberService memberService = new MemberServiceImpl(); 1번
-        //OrderService orderService = new OrderServiceLmpl(); 1번
+        //OrderService orderService = new OrderServiceImpl(); 1번
 
         ApplicationContext applicationContext = new AnnotationConfigApplicationContext(AppConfig.class);
         MemberService memberService = applicationContext.getBean("memberService", MemberService.class);

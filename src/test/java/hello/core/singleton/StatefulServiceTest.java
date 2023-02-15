@@ -26,7 +26,7 @@ class StatefulServiceTest {
         Assertions.assertThat(statefulService1.getPrice()).isEqualTo(20000);
 
         //진짜 공유필드는 조심해야 한다! 스프링 빈은 항상 무상태(stateless)로 설계하자.
-        //무상태 설계는 StatefulService 클래스에 주석으로 달아놓음. 물론 여기 클래스에서도 바꿔야할 부분 있음!
+        //무상태 설계는 StatefulService 클래스에 주석으로 달아놓음. 물론 여기 클래스에서도 바꿔야할 부분 있음! (order의 리턴값이 바뀌니.)
     }
 
     static class TestConfig{
