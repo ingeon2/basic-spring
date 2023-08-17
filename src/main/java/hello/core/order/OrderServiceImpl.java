@@ -5,6 +5,7 @@ import hello.core.member.Member;
 import hello.core.member.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 @Component
 public class OrderServiceImpl implements OrderService{
@@ -30,20 +31,14 @@ public class OrderServiceImpl implements OrderService{
     
 
 
-    //아래는 오버라이딩
     @Override
     public Order createOrder(Long memberId, String itemName, int itemPrice) {
         Member member = memberRepository.findById(memberId);
-        //받아온 id로 회원 객체 할당해줌(아래의 매서드에 할당한 객체가 필요하기 때문)
         int discountPrice = discountPolicy.discount(member, itemPrice);
-        //createOrder에서 할인은 전적으로 OrderService와 관련없이 discountPolicy에만 의존함
-        //discountPolicy 객체는 discount패키지 안의 로직에 따라 할인 가격을 내뱉고, 그 뱉은 가격으로 return할때 생성해서 사용.
-        //★이게 바로 단일책임원칙 잘 지킨것!
 
         return new Order(memberId, itemName, itemPrice, discountPrice);
     }
 
-    //싱글톤 테스트옹 in AppConfig, README
     public MemberRepository getMemberRepository() {
         return memberRepository;
     }
